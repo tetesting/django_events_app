@@ -1,0 +1,9 @@
+{% extends 'events/layouts/base.html' %}
+
+{% block title %}{{ event.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ event.name }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+{% endblock content %}
