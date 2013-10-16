@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-from events import views as events_views
+import events.views
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -20,9 +20,12 @@ urlpatterns = patterns('',
 
     # url(r'^events/', include('events.urls', namespace='events')),
 
-    url(r'^$', events_views.IndexView.as_view(), name='index'),
-    url(r'^about/$', events_views.AboutView.as_view(), name='about'),
-    url(r'^upcoming-events/$', events_views.UpcomingEventsView.as_view(), name='upcoming_events'),
-    url(r'^past-events/$', events_views.PastEventsView.as_view(), name='past_events'),
-    url(r'^(?P<pk>\d+)/$', events_views.DetailView.as_view(), name='detail'),
+    url(r'^$', events.views.IndexView.as_view(), name='index'),
+    url(r'^about/$', events.views.AboutView.as_view(), name='about'),
+    url(r'^upcoming-events/$', events.views.UpcomingEventsView.as_view(), name='upcoming_events'),
+    url(r'^past-events/$', events.views.PastEventsView.as_view(), name='past_events'),
+    url(r'^(?P<pk>\d+)/$', events.views.DetailView.as_view(), name='detail'),
+    url(r'^login/$', events.views.LoginView.as_view(), name='login'),
+    url(r'^logout/$', events.views.logout, name='logout'),
+    url(r'^user-settings/$', events.views.UserSettingsView.as_view(), name='user_settings'),
 )

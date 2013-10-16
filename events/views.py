@@ -45,3 +45,21 @@ class UpcomingEventsView(generic.ListView):
 
 
 
+###### Account Stuff
+
+
+class LoginView(generic.edit.CreateView):
+    model = User
+
+
+class UserSettingsView(generic.edit.UpdateView):
+    model = User
+
+
+
+def logout(request):
+    return HttpResponseRedirect(reverse('index'))
+
+
+
+

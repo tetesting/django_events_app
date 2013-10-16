@@ -25,7 +25,8 @@
   </head>
 
   <body>
-
+    
+    {% block navbar %}
     <div class="navbar navbar-fixed-top">
       <div class="container">
         <a class="navbar-brand" href="/">Events App</a>
@@ -37,6 +38,20 @@
         </ul>
       </div>
     </div> <!-- /navbar -->
+    {% endblock %}
+
+    <div class="top-panel container">
+    {% block user_buttons %}
+        <div class="login-panel">
+        {% if request.user.is_autheticated %}
+          <a href="{% url 'user_settings' %}">Settings</a>
+          <a href="{% url 'logout' %}">Log out</a>  
+        {% else %}
+          <a href="{% url 'login' %}">Log in</a>
+        {% endif %}
+        </div>
+    {% endblock %}
+    </div>
 
     <div class="container">
 

@@ -4,5 +4,11 @@ sensitive/
 __pycache__/
 *.sqlite3
 
+collectstatic/
+
 .DS_Store
 zscrap.txt
+tmp/
+virtualenv/
+.sass-cache/
+compile
