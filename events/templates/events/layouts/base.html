@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{% block title %}{% endblock title %} - Event App</title>
+    <title>{% block title %}Events App{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -43,7 +43,8 @@
     <div class="top-panel container">
     {% block user_buttons %}
       <div class="login-panel">
-      {% if user_is_authenticated %}
+      {% if user.is_authenticated %}
+        <span>Hello, {% firstof user.first_name user.username %}!</span>
         <a href="{% url 'user_settings' %}">Settings</a>
         <a href="{% url 'logout' %}">Log out</a>  
       {% else %}
@@ -72,7 +73,6 @@
       <script src="{% static 'js/bootstrap.js' %}"></script>
       <script src="{% static 'js/project.js' %}"></script>
     {% endblock javascript %}
-    {% block more_js %}{% endblock %}
 
   </body>
 </html>

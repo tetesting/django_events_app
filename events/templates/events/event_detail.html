@@ -1,6 +1,6 @@
 {% extends 'events/layouts/base.html' %}
 
-{% block title %}{{ event.name }}{% endblock %}
+{% block title %}{{ event.name }} - {{ block.super }}{% endblock %}
 
 {% block content %}
 <h1>{{ event.name }}</h1>

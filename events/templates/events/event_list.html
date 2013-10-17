@@ -1,6 +1,6 @@
 {% extends 'events/layouts/base.html' %}
 
-{% block title %}Events{% endblock %}
+{% block title %}Events - {{ block.super }}{% endblock %}
 
 {% block content %}
 {% if event_list %}

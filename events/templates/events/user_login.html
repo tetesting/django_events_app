@@ -2,7 +2,7 @@
 
 {% load widget_tweaks %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Login - {{ block.super }}{% endblock %}
 
 {% block pagetitle %}<h1>Log in</h1>{% endblock %}
 
@@ -13,7 +13,7 @@
 {% endif %}
 
 <div id="content-main">
-<form action="/login/" method="post" role="form" id="login-form">{% csrf_token %}
+<form action="{% url 'login' %}" method="post" role="form" id="login-form">{% csrf_token %}
   <div class="form-group">
     <label for="id_username" class="required">{{ form.username.label }}</label>
     {{ form.username|add_class:"form-control input-textfield" }}
@@ -41,12 +41,24 @@
 </div>
 {% endblock content %}
 
-{% block more_js %}
+{% block javascript %}
+{{ block.super }}
 <script type="text/javascript">
+  var fieldUsername = document.getElementById('id_username');
+  var fieldPassword = document.getElementById('id_password');
   {% if form.username.value %}
-    document.getElementById('id_password').focus();
+    {% if login_error %}
+      {% if error_type == 'not_found' %}  
+        fieldUsername.focus();
+        fieldUsername.select();
+      {% else %}
+        fieldPassword.focus();
+      {% endif %}
+    {% else %}
+      fieldPassword.focus();
+    {% endif %}
   {% else %}
-    document.getElementById('id_username').focus();  
+    fieldUsername.focus();
   {% endif %}
 </script>
 {% endblock %}

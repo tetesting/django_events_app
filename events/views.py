@@ -7,10 +7,11 @@ from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.views.generic.edit import FormView
 
 from .models import Event, User
 from events import forms
-from django.views.generic.edit import FormView
+
 
 class AboutView(generic.TemplateView):
     template_name='events/pages/about.html'
@@ -40,8 +41,6 @@ class IndexView(generic.ListView):
                 raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.")
                         % {'class_name': self.__class__.__name__})
         context = self.get_context_data(object_list=self.object_list)
-        if request.user.is_authenticated(): 
-            context['user_is_authenticated'] = True;
         return self.render_to_response(context)
 
 
@@ -72,11 +71,26 @@ class UpcomingEventsView(generic.ListView):
 
 class UserSettingsView(generic.edit.UpdateView):
     model = User
+    template_name = 'events/user_settings.html'
+    form_class = forms.UserForm
+    # success_url = '/user-settings/'
+
     
+    def get_object(self):
+        return User.objects.get(pk=self.request.user.id)
+
+    # def get(self, request):
+    #     self.object = self.get_object()
+    #     context = self.get_context_data(object=self.object)
+    #     return self.render_to_response(context)
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(UserSettingsView, self).dispatch(*args, **kwargs)
 
+    # def post(self, request, *args, **kwargs):
+    #     self.object = self.get_object()
+    #     return super(BaseUpdateView, self).post(request, *args, **kwargs)
 
 
 ###### Account Stuff
@@ -90,8 +104,11 @@ def logout_action(request):
 class LoginView(generic.edit.CreateView):
     form_class = forms.LoginForm
     template_name = 'events/user_login.html'
+    action = '/login/'
 
     def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect('/')
         form = self.form_class(initial=self.initial)
         return render(request, self.template_name, {'form': form})
 
@@ -99,7 +116,9 @@ class LoginView(generic.edit.CreateView):
         form = self.form_class(request.POST)
         username = form.data.get('username')
         password = form.data.get('password')
-
+        print(args)
+        print(kwargs)
+        print(request.POST)
         context = {'form': form}
         if username == '' or password == '':
             return render(request, self.template_name, context)
@@ -129,6 +148,7 @@ class LoginView(generic.edit.CreateView):
 class RegisterView(generic.edit.CreateView):
     model = User
     template_name = 'events/user_register.html'
+    form_class = forms.UserForm
 
 def register_action(request):
     model = User
