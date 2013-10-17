@@ -15,7 +15,7 @@ class User(AbstractUser):
     location = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
 
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, null=True, blank=True)
 
     def upcoming_events(self):
          timezone.now()

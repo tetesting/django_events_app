@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     url(r'^past-events/$', events.views.PastEventsView.as_view(), name='past_events'),
     url(r'^(?P<pk>\d+)/$', events.views.DetailView.as_view(), name='detail'),
     url(r'^login/$', events.views.LoginView.as_view(), name='login'),
-    url(r'^logout/$', events.views.logout, name='logout'),
+    url(r'^register/$', events.views.register_action, name='register'),
+    url(r'^logout/$', events.views.logout_action, name='logout'),
     url(r'^user-settings/$', events.views.UserSettingsView.as_view(), name='user_settings'),
 )

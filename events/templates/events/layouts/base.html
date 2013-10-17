@@ -42,19 +42,23 @@
 
     <div class="top-panel container">
     {% block user_buttons %}
-        <div class="login-panel">
-        {% if request.user.is_autheticated %}
-          <a href="{% url 'user_settings' %}">Settings</a>
-          <a href="{% url 'logout' %}">Log out</a>  
-        {% else %}
-          <a href="{% url 'login' %}">Log in</a>
-        {% endif %}
-        </div>
+      <div class="login-panel">
+      {% if user_is_authenticated %}
+        <a href="{% url 'user_settings' %}">Settings</a>
+        <a href="{% url 'logout' %}">Log out</a>  
+      {% else %}
+        <a href="{% url 'login' %}">Log in</a>
+        <a href="{% url 'register' %}">Sign up</a>
+      {% endif %}
+      </div>
     {% endblock %}
     </div>
 
-    <div class="container">
+    <div class="container">    
+    {% block pagetitle %}{% endblock %}
+    </div><br/>
 
+    <div class="container">
       {% block content %}
         <p>Placeholder for main content.</p>
       {% endblock content %}
@@ -68,5 +72,7 @@
       <script src="{% static 'js/bootstrap.js' %}"></script>
       <script src="{% static 'js/project.js' %}"></script>
     {% endblock javascript %}
+    {% block more_js %}{% endblock %}
+
   </body>
 </html>

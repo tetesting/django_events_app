@@ -11,6 +11,10 @@ MANAGERS = ADMINS
 
 AUTH_USER_MODEL = 'events.User'
 
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
+
 from sensitive import secrets, db_info
 
 DATABASES = db_info.DATABASES
@@ -120,6 +124,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'widget_tweaks',
+
     'events',
 )
 
