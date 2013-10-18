@@ -24,3 +24,20 @@ body {
 
 .input-textfield {
   width: 200px; }
+
+.navbar-wb .navbar-toggle {
+  border-color: #dddddd;
+  border-top-color: #dddddd;
+  border-right-color-value: #dddddd;
+  border-bottom-color: #dddddd;
+  border-left-color-value: #dddddd;
+  border-left-color-ltr-source: physical;
+  border-left-color-rtl-source: physical;
+  border-right-color-ltr-source: physical;
+  border-right-color-rtl-source: physical; }
+
+.navbar-wb .navbar-toggle .icon-bar {
+  background-color: #428bca; }
+
+.navbar-wb .navbar-collapse {
+  border-color: #c8c8e6; }

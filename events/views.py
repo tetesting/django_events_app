@@ -69,28 +69,7 @@ class UpcomingEventsView(generic.ListView):
 
 
 
-class UserSettingsView(generic.edit.UpdateView):
-    model = User
-    template_name = 'events/user_settings.html'
-    form_class = forms.UserForm
-    # success_url = '/user-settings/'
 
-    
-    def get_object(self):
-        return User.objects.get(pk=self.request.user.id)
-
-    # def get(self, request):
-    #     self.object = self.get_object()
-    #     context = self.get_context_data(object=self.object)
-    #     return self.render_to_response(context)
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(UserSettingsView, self).dispatch(*args, **kwargs)
-
-    # def post(self, request, *args, **kwargs):
-    #     self.object = self.get_object()
-    #     return super(BaseUpdateView, self).post(request, *args, **kwargs)
 
 
 ###### Account Stuff
@@ -116,9 +95,7 @@ class LoginView(generic.edit.CreateView):
         form = self.form_class(request.POST)
         username = form.data.get('username')
         password = form.data.get('password')
-        print(args)
-        print(kwargs)
-        print(request.POST)
+
         context = {'form': form}
         if username == '' or password == '':
             return render(request, self.template_name, context)
@@ -148,13 +125,50 @@ class LoginView(generic.edit.CreateView):
 class RegisterView(generic.edit.CreateView):
     model = User
     template_name = 'events/user_register.html'
-    form_class = forms.UserForm
+    form_class = forms.UserSettingsForm
 
-def register_action(request):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect('/')
+        form = self.form_class(initial=self.initial)
+        return render(request, self.template_name, {'form': form})
+
+
+class UserPasswordChangeView(generic.edit.UpdateView):
     model = User
-    template_name = 'events/user_register.html'
+    template_name = 'events/user_password_change.html'
+    form_class = forms.UserPasswordChangeForm
+    success_url = '/user-settings/'
+
+    def get_object(self):
+        return User.objects.get(pk=self.request.user.id)
+
+    @method_decorator(login_required(redirect_field_name=''))
+    def dispatch(self, *args, **kwargs):
+        return super(UserPasswordChangeView, self).dispatch(*args, **kwargs)
 
 
+class UserSettingsView(generic.edit.UpdateView):
+    model = User
+    template_name = 'events/user_settings.html'
+    form_class = forms.UserSettingsForm
+    # success_url = '/user-settings/'
 
+    
+    def get_object(self):
+        return User.objects.get(pk=self.request.user.id)
+
+    # def get(self, request):
+    #     self.object = self.get_object()
+    #     context = self.get_context_data(object=self.object)
+    #     return self.render_to_response(context)
+
+    @method_decorator(login_required(redirect_field_name=''))
+    def dispatch(self, *args, **kwargs):
+        return super(UserSettingsView, self).dispatch(*args, **kwargs)
+
+    # def post(self, request, *args, **kwargs):
+    #     self.object = self.get_object()
+    #     return super(BaseUpdateView, self).post(request, *args, **kwargs)
 
 

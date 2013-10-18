@@ -10,20 +10,15 @@
 <div id="content-main">
   <form action="{% url 'user_settings' %}" method="post">
     {% csrf_token %}
-
+<div class="row container">
+  <a class="col-sm-offset-9" href="{% url 'user_password_change' %}">Change Password</a>
+</div>
+<br/>
 <div class="row">
-<div class="col-sm-4 col-sm-offset-1">
+<div class="col-sm-offset-1 col-sm-4">
   <div class="form-group">
     <label for="id_username">Username</label>
     {{ form.username|add_class:"form-control" }}
-  </div>
-  <div class="form-group">
-    <label for="id_password">Password</label>
-    {{ form.password|add_class:"form-control" }}
-  </div>
-  <div class="form-group">
-    <label for="id_password_confirm">Confirm Password</label>
-    {{ form.password_confirm|add_class:"form-control" }}
   </div>
   <div class="form-group">
     <label for="id_first_name">First name</label>
@@ -37,12 +32,12 @@
     <label for="id_email">Email address</label>
     {{ form.email|add_class:"form-control" }}
   </div>
-</div>
-<div class="col-sm-5 col-sm-offset-1">
   <div class="form-group">
     <label for="id_location">Location</label>
     {{ form.location|add_class:"form-control" }}
   </div>
+</div>
+<div class="col-sm-offset-1 col-sm-5">
   <div class="form-group">
     <label for="id_description">About Me</label>
     {{ form.description|add_class:"form-control" }}

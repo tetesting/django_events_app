@@ -27,19 +27,29 @@
   <body>
     
     {% block navbar %}
-    <div class="navbar navbar-fixed-top">
+    <div class="navbar navbar-wb navbar-fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="/">Events App</a>
-        <ul class="nav navbar-nav">
-          <li><a href="/">Home</a></li>
-          <li><a href="{% url 'upcoming_events' %}">Upcoming Events</a></li>
-          <li><a href="{% url 'past_events' %}">Past Events</a></li>
-          <li><a href="{% url 'about' %}">About</a></li>
-        </ul>
+        <div class="navbar-header">
+          <button data-target=".navbar-collapse" data-toggle="collapse" class="navbar-toggle" type="button">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          <a class="navbar-brand" href="/">Events App</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="{% url 'upcoming_events' %}">Upcoming Events</a></li>
+            <li><a href="{% url 'past_events' %}">Past Events</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+          </ul>
+        </div>
       </div>
     </div> <!-- /navbar -->
     {% endblock %}
 
+  <div class="main">
     <div class="top-panel container">
     {% block user_buttons %}
       <div class="login-panel">
@@ -55,16 +65,20 @@
     {% endblock %}
     </div>
 
-    <div class="container">    
-    {% block pagetitle %}{% endblock %}
-    </div><br/>
-
     <div class="container">
+      <div class="row">
+        <div class="col-sm-offset-1 col-sm-6">    
+        {% block pagetitle %}{% endblock %}
+        </div>
+      </div>
+      <br/>
+
       {% block content %}
         <p>Placeholder for main content.</p>
       {% endblock content %}
 
     </div> <!-- /container -->
+  </div>
 
 <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> -->
 <!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script> -->
