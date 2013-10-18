@@ -9,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import FormView
 
+from django.contrib import messages
+
 from .models import Event, User
 from events import forms
 
@@ -88,7 +90,9 @@ class LoginView(generic.edit.CreateView):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated():
             return HttpResponseRedirect('/')
+        
         form = self.form_class(initial=self.initial)
+
         return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
@@ -147,28 +151,47 @@ class UserPasswordChangeView(generic.edit.UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(UserPasswordChangeView, self).dispatch(*args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        """
+        Modify the post method to to include errors
+        """
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            self.object = form.save()
+            messages.success(request, 'Your password has been changed.')
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            messages.error(request, 'Your password was not changed.')
+            return self.form_invalid(form)
 
 class UserSettingsView(generic.edit.UpdateView):
     model = User
     template_name = 'events/user_settings.html'
     form_class = forms.UserSettingsForm
-    # success_url = '/user-settings/'
-
+    success_url = '/user-settings/'
     
     def get_object(self):
         return User.objects.get(pk=self.request.user.id)
-
-    # def get(self, request):
-    #     self.object = self.get_object()
-    #     context = self.get_context_data(object=self.object)
-    #     return self.render_to_response(context)
 
     @method_decorator(login_required(redirect_field_name=''))
     def dispatch(self, *args, **kwargs):
         return super(UserSettingsView, self).dispatch(*args, **kwargs)
 
-    # def post(self, request, *args, **kwargs):
-    #     self.object = self.get_object()
-    #     return super(BaseUpdateView, self).post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        """
+        Modify the post method to include errors
+        """
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            self.object = form.save()
+            messages.success(request, 'Profile details updated.')
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            messages.error(request, 'Profile details remain unchanged. Fix the errors below first.')
+            return self.form_invalid(form)
 
 

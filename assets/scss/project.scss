@@ -53,11 +53,28 @@ body {
     border-color: rgb(200, 200, 230);
 }
 
+.messages li {
+  list-style-type: none;
+}
+
+.messages .success {
+  color: green;
+}
+
+.messages .error {
+  color: red;
+}
 
 @media screen and (max-width: 767px){
 
   .main {
     // margin-top: 120px;
+  }
+
+  .link-row {
+    float: right;
+    // margin-top: 10px;
+    // margin-bottom: 15px;
   }
 
 

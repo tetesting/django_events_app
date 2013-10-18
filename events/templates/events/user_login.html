@@ -13,7 +13,8 @@
 {% endif %}
 
 <div id="content-main">
-<form action="{% url 'login' %}" method="post" role="form" id="login-form">{% csrf_token %}
+<form action="{% url 'login' %}" method="post" role="form" id="login-form">
+  {% csrf_token %}{{ form.redirect_tag|safe }}
   <div class="row">
     <div class="col-sm-offset-1 col-sm-4">
       <div class="form-group">

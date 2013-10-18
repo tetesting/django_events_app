@@ -30,8 +30,7 @@ class RegisterForm(forms.ModelForm):
 class UserSettingsForm(forms.ModelForm):
     # username = forms.CharField(required=True)
 
-    tags = forms.CharField(widget=forms.TextInput(
-      attrs={'value':'cool'}))
+    # tags = forms.CharField(widget=forms.TextInput(attrs={'value':'cool'}))
 
     class Meta:
         model = models.User

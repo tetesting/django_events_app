@@ -41,3 +41,16 @@ body {
 
 .navbar-wb .navbar-collapse {
   border-color: #c8c8e6; }
+
+.messages li {
+  list-style-type: none; }
+
+.messages .success {
+  color: green; }
+
+.messages .error {
+  color: red; }
+
+@media screen and (max-width: 767px) {
+  .link-row {
+    float: right; } }

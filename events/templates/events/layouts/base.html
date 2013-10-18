@@ -72,7 +72,14 @@
         </div>
       </div>
       <br/>
-
+      {% if messages %}
+      <ul class="messages container row col-sm-offset-1">
+          {% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+      </ul>
+      <br/>
+      {% endif %}
       {% block content %}
         <p>Placeholder for main content.</p>
       {% endblock content %}
