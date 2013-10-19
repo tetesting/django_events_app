@@ -5,7 +5,7 @@ from django.views.decorators.cache import never_cache
 import events.views
 
 urlpatterns = patterns('',
-    url(r'^$', events.views.IndexView.as_view(), name='index'),
+    url(r'^$', events.views.index_action, name='index'),
     url(r'^about/$', events.views.AboutView.as_view(), name='about'),
     url(r'^upcoming-events/$', events.views.UpcomingEventsView.as_view(), name='upcoming_events'),
     url(r'^past-events/$', events.views.PastEventsView.as_view(), name='past_events'),

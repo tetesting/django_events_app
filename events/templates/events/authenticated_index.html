@@ -1,0 +1,15 @@
+{% extends 'events/layouts/base.html' %}
+
+{% block title %}aEvents - {{ block.super }}{% endblock %}
+
+{% block content %}
+{% if event_list %}
+    <ul>
+    {% for event in event_list %}
+        <li><a href="{% url 'detail' event.id %}">{{ event.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No events are available.</p>
+{% endif %}
+{% endblock content %}
