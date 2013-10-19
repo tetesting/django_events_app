@@ -3,13 +3,12 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 
-class UpdateViewWithMessageMixin(object):
+class SaveViewWithMessageMixin(object):
 
     def post(self, request, message_dict, *args, **kwargs):
         """
-        Modify the post method to include errors
+        Modify the post method to include messages
         """
-        self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
@@ -19,7 +18,4 @@ class UpdateViewWithMessageMixin(object):
         else:
             messages.error(request, message_dict['error'])
             return self.form_invalid(form)
-
-
-
 

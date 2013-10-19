@@ -17,18 +17,39 @@ class LoginForm(forms.Form):
 
 class RegisterForm(forms.ModelForm):
     username = forms.CharField(required=True)
-    password = forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
+    password_confirm = forms.CharField(
+        widget=forms.PasswordInput(),
+        required=True)
+    password = forms.CharField(
+        widget=forms.PasswordInput(),
+        required=True)
 
     class Meta:
         model = models.User
+        fields = ('username', 'password', 'first_name', 'last_name', 'email', 
+            'location', 'description')
 
     def __init__(self, *args, **kwargs):
         return super(RegisterForm, self).__init__(*args, **kwargs)
 
+    def clean(self):
+        cleaned_data = super(RegisterForm, self).clean()
+
+        password = cleaned_data.get('password')
+        password_confirm =cleaned_data.get('password_confirm')
+
+        # check if passwords match
+        if password_confirm:
+            if password != password_confirm:
+                errors = ['The passwords must match.']
+                self.errors['password_confirm'] = self.error_class(errors)
+                raise forms.ValidationError(errors[0])
+            else:
+                cleaned_data['password'] = make_password(password)
+
+        return cleaned_data
 
 class UserSettingsForm(forms.ModelForm):
-    # username = forms.CharField(required=True)
 
     # tags = forms.CharField(widget=forms.TextInput(attrs={'value':'cool'}))
 
@@ -39,42 +60,40 @@ class UserSettingsForm(forms.ModelForm):
 
 
 class UserPasswordChangeForm(forms.ModelForm):
- 
+
+    password = forms.CharField(
+        widget=forms.PasswordInput(),
+        required=True)
+
     password_new = forms.CharField(
         widget=forms.PasswordInput(),
         required=True)
     password_confirm = forms.CharField(
         widget=forms.PasswordInput(),
         required=True)
-    password = forms.CharField(
-        widget=forms.PasswordInput(),
-        required=True)
+    
 
+    def clean(self):
+        cleaned_data = super(UserPasswordChangeForm, self).clean()
 
-    def __init__(self, *args, **kwargs):
-        return super(UserPasswordChangeForm, self).__init__(*args, **kwargs)
-
-    def clean_password_confirm(self):
-        password_new = self.cleaned_data.get('password_new')
-        password_confirm = self.cleaned_data.get('password_confirm')
-        
-        if password_new:
-            errors = []
-            if password_confirm != password_new:
-                errors.append('The passwords did not match.')
-            if errors:
-                self.errors['password_confirm'] = self.error_class(errors)
-
-        return password_confirm
-
-    def clean_password(self):
-        password = self.cleaned_data.get('password')
+        password = cleaned_data.get('password')
         encoded = self.instance.password
-        
-        if 'password_confirm' not in self.errors:
-            if not check_password(password, encoded):
-                self.errors['password'] = \
-                    self.error_class(['Incorrect password.'])
-        
-        return make_password(self.cleaned_data.get('password_confirm'))
+
+        if not check_password(password, encoded):
+            error_message = 'Incorrect password.'
+            self.errors['password'] = self.error_class([error_message])
+            raise forms.ValidationError(error_message)
+
+        password_new = cleaned_data.get('password_new')
+        password_confirm = cleaned_data.get('password_confirm')
+
+        if password_new and password_confirm:
+            if password_confirm != password_new:
+                error_message = 'The new passwords must match.'
+                self.errors['password_confirm'] = self.error_class([error_message])
+                raise forms.ValidationError(error_message)
+
+        cleaned_data['password'] = make_password(password_confirm)
+
+        return cleaned_data
 

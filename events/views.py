@@ -13,7 +13,8 @@ from django.contrib import messages
 
 from .models import Event, User
 from events import forms
-from .view_helpers import UpdateViewWithMessageMixin
+from .view_helpers import SaveViewWithMessageMixin
+
 
 class AboutView(generic.TemplateView):
     template_name='events/pages/about.html'
@@ -71,9 +72,6 @@ class UpcomingEventsView(generic.ListView):
 
 
 
-
-
-
 ###### Account Stuff
 
 
@@ -122,15 +120,17 @@ class LoginView(generic.edit.CreateView):
                     error_type = 'password'
                 context = {'form': form, 
                            'login_error': True, 'error_type': error_type}
-                
+
             return render(request, self.template_name, context)
     
 
 
-class RegisterView(generic.edit.CreateView):
+class RegisterView(
+            SaveViewWithMessageMixin, generic.edit.CreateView):
     model = User
     template_name = 'events/user_register.html'
-    form_class = forms.UserSettingsForm
+    form_class = forms.RegisterForm
+    success_url = '/login/'
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated():
@@ -138,9 +138,19 @@ class RegisterView(generic.edit.CreateView):
         form = self.form_class(initial=self.initial)
         return render(request, self.template_name, {'form': form})
 
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        message_dict = { 
+            'success' : 'Your account has been successfully created!',
+            'error' : 'Your account was not created ' +
+                        'due to the errors listed below.' }
+        return super(RegisterView, self).post(
+                        request, message_dict, *args, **kwargs)
+
+
 
 class UserPasswordChangeView(
-            UpdateViewWithMessageMixin, generic.edit.UpdateView):
+            SaveViewWithMessageMixin, generic.edit.UpdateView):
     model = User
     template_name = 'events/user_password_change.html'
     form_class = forms.UserPasswordChangeForm
@@ -154,15 +164,17 @@ class UserPasswordChangeView(
         return super(UserPasswordChangeView, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        message_dict = { 'success' : 'Your password has been changed.',
-                     'error' : 'Your password was not changed. \
-                     Please fix the errors below first.' }
+        self.object = self.get_object()
+        message_dict = { 
+            'success' : 'Your password has been changed.',
+            'error' : 'Your password was not changed ' +
+                        'due to the errors listed below.' }
         return super(UserPasswordChangeView, self).post(
                         request, message_dict, *args, **kwargs)
         
 
 class UserSettingsView(
-            UpdateViewWithMessageMixin, generic.edit.UpdateView):
+            SaveViewWithMessageMixin, generic.edit.UpdateView):
     model = User
     template_name = 'events/user_settings.html'
     form_class = forms.UserSettingsForm
@@ -176,9 +188,11 @@ class UserSettingsView(
         return super(UserSettingsView, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        message_dict = { 'success' : 'Profile details updated.',
-                     'error' : 'Profile details remain unchanged. \
-                     Please fix the errors below first.' }
+        self.object = self.get_object()
+        message_dict = { 
+            'success' : 'Profile details updated.',
+            'error' : 'Profile details remain unchanged ' +
+                        'Please fix the errors below first.' }
         return super(UserSettingsView, self).post(
                         request, message_dict, *args, **kwargs)
 
