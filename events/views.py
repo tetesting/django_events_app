@@ -13,7 +13,7 @@ from django.contrib import messages
 
 from .models import Event, User
 from events import forms
-
+from .view_helpers import UpdateViewWithMessageMixin
 
 class AboutView(generic.TemplateView):
     template_name='events/pages/about.html'
@@ -96,16 +96,17 @@ class LoginView(generic.edit.CreateView):
         return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return HttpResponseRedirect('/')
+
         form = self.form_class(request.POST)
         username = form.data.get('username')
         password = form.data.get('password')
 
-        context = {'form': form}
         if username == '' or password == '':
-            return render(request, self.template_name, context)
+            return render(request, self.template_name, {'form': form})
 
         user = authenticate(username=username, password=password)
-        print(username+'--'+password)
         if user is not None:
             if user.is_active:
                 login(request, user)
@@ -138,7 +139,8 @@ class RegisterView(generic.edit.CreateView):
         return render(request, self.template_name, {'form': form})
 
 
-class UserPasswordChangeView(generic.edit.UpdateView):
+class UserPasswordChangeView(
+            UpdateViewWithMessageMixin, generic.edit.UpdateView):
     model = User
     template_name = 'events/user_password_change.html'
     form_class = forms.UserPasswordChangeForm
@@ -152,21 +154,15 @@ class UserPasswordChangeView(generic.edit.UpdateView):
         return super(UserPasswordChangeView, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        """
-        Modify the post method to to include errors
-        """
-        self.object = self.get_object()
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            self.object = form.save()
-            messages.success(request, 'Your password has been changed.')
-            return HttpResponseRedirect(self.get_success_url())
-        else:
-            messages.error(request, 'Your password was not changed.')
-            return self.form_invalid(form)
+        message_dict = { 'success' : 'Your password has been changed.',
+                     'error' : 'Your password was not changed. \
+                     Please fix the errors below first.' }
+        return super(UserPasswordChangeView, self).post(
+                        request, message_dict, *args, **kwargs)
+        
 
-class UserSettingsView(generic.edit.UpdateView):
+class UserSettingsView(
+            UpdateViewWithMessageMixin, generic.edit.UpdateView):
     model = User
     template_name = 'events/user_settings.html'
     form_class = forms.UserSettingsForm
@@ -180,18 +176,11 @@ class UserSettingsView(generic.edit.UpdateView):
         return super(UserSettingsView, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        """
-        Modify the post method to include errors
-        """
-        self.object = self.get_object()
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            self.object = form.save()
-            messages.success(request, 'Profile details updated.')
-            return HttpResponseRedirect(self.get_success_url())
-        else:
-            messages.error(request, 'Profile details remain unchanged. Fix the errors below first.')
-            return self.form_invalid(form)
+        message_dict = { 'success' : 'Profile details updated.',
+                     'error' : 'Profile details remain unchanged. \
+                     Please fix the errors below first.' }
+        return super(UserSettingsView, self).post(
+                        request, message_dict, *args, **kwargs)
+
 
 
