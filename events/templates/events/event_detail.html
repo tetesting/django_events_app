@@ -1,9 +1,40 @@
 {% extends 'events/layouts/base.html' %}
 
-{% block title %}{{ event.name }} - {{ block.super }}{% endblock %}
+{% block title %}Details for {{ event.name }} - {{ block.super }}{% endblock %}
+
+{% block pagetitle %}<h1>{{ event.name }}</h1>{% endblock %}
 
 {% block content %}
-<h1>{{ event.name }}</h1>
+<div class="row">
+  <div class="col-sm-offset-1 col-sm-7">
+    <h2>Details</h2>
+    <br/>
+    <table class="table">
+        <tr><th>Start Time:</th><td>{{ event.start_date }}</td></tr>
+        {% if event.end_date %}
+        <tr><th>End Time:</th><td>{{ event.end_date }}</td></tr>
+        {% endif %}
+        {% if event.location_date %}
+        <tr><th>Location:</th><td>{{ event.location }}</td></tr>
+        {% endif %}
+        {% if event.description %}
+        <tr><th>Description:</th><td>
+          <p>{{ event.description }}</p>
+        </td></tr>
+        {% endif %}
+    </table>
+    {% if event.attendees %}
+    <br/>
+    <div class="col-sm-3"><b>Attendees</b>
+      <ul class="list-unstyled col-sm-offset-3">
+      {% for attendee in event.attendees.all %}
+        <li>{{ attendee }}</li>
+      {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 {% endblock content %}

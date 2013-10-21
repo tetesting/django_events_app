@@ -2,14 +2,28 @@
 
 {% block title %}Upcoming Events - {{ block.super }}{% endblock %}
 
+{% block pagetitle %}<h1>Upcoming Events</h1>{% endblock %}
+
 {% block content %}
-{% if event_list %}
-    <ul>
-    {% for event in event_list %}
-        <li><a href="{% url 'detail' event.id %}">{{ event.name }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No events are available.</p>
-{% endif %}
+
+<div class="row">
+  <div class="col-sm-offset-1 col-sm-7">
+    <h2>Check out these events!</h2>
+    {% if event_list %}
+      <table class="table">
+        <tr><th>Event Name</th><th>Date</th><th>Location</th>
+      {% for event in event_list %}
+        <tr>
+          <td><a href="{% url 'detail' event.id %}">{{ event.name }}</a></td>
+          <td>{{ event.start_date }}
+            {% if event.end_date %} -  {{ event.end_date}}{% endif %}</td>
+          <td>{% if event.location %}{{ event.location }}{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </table>
+    {% else %}
+        <p>No events are available.</p>
+    {% endif %}
+  </div>
+</div>
 {% endblock content %}

@@ -12,7 +12,7 @@ from django.contrib import messages
 
 from .models import Event, User
 from events import forms
-from .view_helpers import LoginRequiredMixin, SaveViewWithMessageMixin
+from .view_helpers import LoginRequiredMixin, SaveViewWithMessageMixin, MyEventsMixin
 
 
 class AboutView(generic.TemplateView):
@@ -27,38 +27,71 @@ def index_action(request):
 
 class IndexAnonymousView(generic.ListView):
     template_name = 'events/anonymous_index.html'
+    limit = 10
 
     def get_queryset(self):
         """"Return the soonest upcoming events."""
         return Event.objects.filter(
                 start_date__gte=timezone.now()
-            ).order_by('start_date')[:10]
+            ).order_by('start_date')[:self.limit]
 
 
-class IndexAuthenticatedView(generic.ListView):
+class IndexAuthenticatedView(MyEventsMixin, generic.ListView):
+    """
+    display:
+        6 upcoming events that the user is organizing;
+        6 upcoming events that the user is attending;
+        6 upcoming events that the user may be interested in;
+    """
     template_name = 'events/authenticated_index.html'
+    limit = 6
 
     def get_queryset(self):
-        """"Return the soonest upcoming events that the user RSVP'd to."""
-        # print(User.objects.get(pk=self.request.user.id).events_attendees_set.filter(start_date__gte=timezone.now()).query)
-        return User.objects.get(pk=self.request.user.id).events_attendees_set.filter(start_date__gte=timezone.now()).order_by('start_date')[:10]
+        """"Return the soonest upcoming events that the user is not attending."""
+        return Event.objects.exclude(
+                attendees__id__exact=self.request.user.id
+            ).filter(
+                start_date__gte=timezone.now()
+            ).order_by('start_date')[:self.limit]
 
+    def get_context_data(self, **kwargs):
+        context = super(IndexAuthenticatedView, self).get_context_data(**kwargs)
+
+        organizing_list = self.get_events_organizing(self.limit)
+        attending_list = self.get_events_attending(self.limit)
+        kwargs.update({'organizing_list' : organizing_list})
+        kwargs.update({'attending_list' : attending_list})
+
+        context.update(kwargs)
+        return context
 
 class DetailView(generic.DetailView):
     model = Event
 
 
+
 class PastEventsView(generic.ListView):
+    """
+    display:
+        past events that the user may have been interested in,
+        as well as an indicator for their RSVP.
+    """
     template_name = 'events/event_list_past.html'
+    limit = 10
 
     def get_queryset(self):
         """"Return the latest past events."""
         return Event.objects.filter(
                 start_date__lte=timezone.now()
-            ).order_by('-start_date')[:10]
+            ).order_by('-start_date')[:self.limit]
 
 
 class UpcomingEventsView(generic.ListView):
+    """
+    display:
+        upcoming events that the user may be interested in,
+        as well as an indicator for their RSVP.
+    """
     template_name = 'events/event_list_upcoming.html'
 
     def get_queryset(self):
@@ -84,6 +117,24 @@ class CreateEventView(LoginRequiredMixin, generic.edit.CreateView):
 
         return HttpResponseRedirect(self.get_success_url())
 
+
+class MyEventsView(LoginRequiredMixin, MyEventsMixin, generic.ListView):
+    template_name = 'events/my_events.html'
+    limit = 10
+
+    def get_queryset(self):
+        pass
+
+    def get_context_data(self, **kwargs):
+        context = super(MyEventsView, self).get_context_data(**kwargs)
+
+        organizing_list = self.get_events_organizing(self.limit)
+        attending_list = self.get_events_attending(self.limit)
+        kwargs.update({'organizing_list' : organizing_list})
+        kwargs.update({'attending_list' : attending_list})
+
+        context.update(kwargs)
+        return context
 
 ###### Account Stuff
 

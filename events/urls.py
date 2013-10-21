@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(r'^change-password/$', never_cache(events.views.UserPasswordChangeView.as_view()), name='user_password_change'),
 
     url(r'^create-event/$', events.views.CreateEventView.as_view(), name='event_create'),
-
+    url(r'^my-events/$', events.views.MyEventsView.as_view(), name='my_events'),
 
 
     url(r"^robots\.txt$", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),

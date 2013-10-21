@@ -1,9 +1,11 @@
 from django.http import HttpResponseRedirect
-
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
 from django.contrib import messages
+
+from .models import Event, User
 
 
 class LoginRequiredMixin(object):
@@ -28,4 +30,16 @@ class SaveViewWithMessageMixin(object):
         else:
             messages.error(request, message_dict['error'])
             return self.form_invalid(form)
+
+
+class MyEventsMixin(object):
+
+    def get_events_organizing(self, limit=6):
+        """"Return the soonest upcoming events that the user is organizing."""
+        return Event.objects.filter(organizer=self.request.user,
+            start_date__gte=timezone.now()).order_by('start_date')[:limit]
+
+    def get_events_attending(self, limit=6):
+        """"Return the soonest upcoming events that the user is attending."""
+        return User.objects.get(pk=self.request.user.id).events_attendees_set.filter(start_date__gte=timezone.now()).order_by('start_date')[:limit]
 
