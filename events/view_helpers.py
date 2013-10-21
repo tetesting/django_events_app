@@ -1,6 +1,16 @@
 from django.http import HttpResponseRedirect
 
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+
 from django.contrib import messages
+
+
+class LoginRequiredMixin(object):
+
+    @method_decorator(login_required(redirect_field_name=''))
+    def dispatch(self, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
 
 class SaveViewWithMessageMixin(object):

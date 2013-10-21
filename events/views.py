@@ -5,15 +5,14 @@ from django.views import generic
 from django.utils import timezone
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+
 from django.views.generic.edit import FormView
 
 from django.contrib import messages
 
 from .models import Event, User
 from events import forms
-from .view_helpers import SaveViewWithMessageMixin
+from .view_helpers import LoginRequiredMixin, SaveViewWithMessageMixin
 
 
 class AboutView(generic.TemplateView):
@@ -69,14 +68,10 @@ class UpcomingEventsView(generic.ListView):
             ).order_by('start_date')[:10]
 
 
-class CreateEventView(generic.edit.CreateView):
+class CreateEventView(LoginRequiredMixin, generic.edit.CreateView):
     form_class = forms.CreateEventForm
     template_name = 'events/event_create.html'
     success_url = '/'
-
-    @method_decorator(login_required(redirect_field_name=''))
-    def dispatch(self, *args, **kwargs):
-        return super(CreateEventView, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -166,7 +161,7 @@ class RegisterView(
 
 
 
-class UserPasswordChangeView(
+class UserPasswordChangeView(LoginRequiredMixin,
             SaveViewWithMessageMixin, generic.edit.UpdateView):
     model = User
     template_name = 'events/user_password_change.html'
@@ -175,10 +170,6 @@ class UserPasswordChangeView(
 
     def get_object(self):
         return User.objects.get(pk=self.request.user.id)
-
-    @method_decorator(login_required(redirect_field_name=''))
-    def dispatch(self, *args, **kwargs):
-        return super(UserPasswordChangeView, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -190,7 +181,7 @@ class UserPasswordChangeView(
                         request, message_dict, *args, **kwargs)
         
 
-class UserSettingsView(
+class UserSettingsView(LoginRequiredMixin,
             SaveViewWithMessageMixin, generic.edit.UpdateView):
     model = User
     template_name = 'events/user_settings.html'
@@ -199,10 +190,6 @@ class UserSettingsView(
     
     def get_object(self):
         return User.objects.get(pk=self.request.user.id)
-
-    @method_decorator(login_required(redirect_field_name=''))
-    def dispatch(self, *args, **kwargs):
-        return super(UserSettingsView, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
