@@ -5,6 +5,26 @@
 {% block pagetitle %}<h1>{{ event.name }}</h1>{% endblock %}
 
 {% block content %}
+
+{% if user.is_authenticated %}
+<div class="container row link-row">
+  <div class="col-sm-offset-6 col-sm-4">
+  <form action="/{{ event.id }}/" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-default">
+    {% if event in user.events_attendees_set.all %}
+      Withdraw from Event</button>
+      <input type="hidden" name="action" value="withdraw">
+    {% else %}
+      Attend Event</button>
+      <input type="hidden" name="action" value="attend">
+    {% endif %}
+  </form>
+  </div>
+</div>
+<br/>
+{% endif%}
+
 <div class="row">
   <div class="col-sm-offset-1 col-sm-7">
     <h2>Details</h2>

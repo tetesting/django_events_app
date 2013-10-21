@@ -68,7 +68,22 @@ class IndexAuthenticatedView(MyEventsMixin, generic.ListView):
 class DetailView(generic.DetailView):
     model = Event
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        success_url = "/{}/".format(self.object.id)
+
+        if (request.POST['action'] == 'attend'):
+            self.object.attendees.add(request.user.id)
+        else:
+            self.object.attendees.remove(request.user.id)
+
+        return HttpResponseRedirect(success_url)
 
 class PastEventsView(generic.ListView):
     """
