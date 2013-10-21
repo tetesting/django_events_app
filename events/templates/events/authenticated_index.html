@@ -1,8 +1,9 @@
 {% extends 'events/layouts/base.html' %}
 
-{% block title %}aEvents - {{ block.super }}{% endblock %}
+{% block title %}Events - {{ block.super }}{% endblock %}
 
 {% block content %}
+<a href="{% url 'event_create' %}">Create Event</a><br/><br/>
 {% if event_list %}
     <ul>
     {% for event in event_list %}

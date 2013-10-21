@@ -26,9 +26,10 @@ class Event(models.Model):
     start_date = models.DateTimeField('start date', null=True, blank=True)
     end_date = models.DateTimeField('end date', null=True, blank=True)
     location = models.CharField(max_length=100, null=True, blank=True)
+    description = models.TextField(blank=True)
     tags = models.ManyToManyField(Tag, null=True, blank=True)
 
-    organizer = models.ForeignKey(User, related_name='events_organizer_set')
+    organizer = models.ForeignKey(User, related_name='events_organizer_set', null=True, blank=True)
     attendees = models.ManyToManyField(User, related_name='events_attendees_set', null=True, blank=True)
 
     def __str__(self):

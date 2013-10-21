@@ -1,8 +1,11 @@
 from django import forms
 from django.contrib.auth.hashers import check_password, make_password
+from django.utils import timezone
 
 from events import models
 
+
+ONE_HOUR = timezone.timedelta(0,3600)
 
 class LoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(
@@ -96,4 +99,16 @@ class UserPasswordChangeForm(forms.ModelForm):
         cleaned_data['password'] = make_password(password_confirm)
 
         return cleaned_data
+
+
+class CreateEventForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Event
+        exclude = ['organizer_id']
+
+    def __init__(self, *args, **kwargs):
+        kwargs['initial'].update({'start_date': timezone.now()+ONE_HOUR})
+        return super(CreateEventForm, self).__init__(*args, **kwargs)
+
 

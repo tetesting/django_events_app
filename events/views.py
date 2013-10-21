@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.views import generic
@@ -33,53 +33,16 @@ class IndexAnonymousView(generic.ListView):
         """"Return the soonest upcoming events."""
         return Event.objects.filter(
                 start_date__gte=timezone.now()
-            ).order_by('start_date')[:5]
-
-    def get(self, request, *args, **kwargs):
-        self.object_list = self.get_queryset()
-        allow_empty = self.get_allow_empty()
-        if not allow_empty:
-            # When pagination is enabled and object_list is a queryset,
-            # it's better to do a cheap query than to load the unpaginated
-            # queryset in memory.
-            if (self.get_paginate_by(self.object_list) is not None
-                and hasattr(self.object_list, 'exists')):
-                is_empty = not self.object_list.exists()
-            else:
-                is_empty = len(self.object_list) == 0
-            if is_empty:
-                raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.")
-                        % {'class_name': self.__class__.__name__})
-        context = self.get_context_data(object_list=self.object_list)
-        return self.render_to_response(context)
+            ).order_by('start_date')[:10]
 
 
 class IndexAuthenticatedView(generic.ListView):
     template_name = 'events/authenticated_index.html'
-    print('a')
-    def get_queryset(self):
-        """"Return the soonest upcoming events."""
-        return Event.objects.filter(
-                start_date__gte=timezone.now()
-            ).order_by('start_date')[:5]
 
-    def get(self, request, *args, **kwargs):
-        self.object_list = self.get_queryset()
-        allow_empty = self.get_allow_empty()
-        if not allow_empty:
-            # When pagination is enabled and object_list is a queryset,
-            # it's better to do a cheap query than to load the unpaginated
-            # queryset in memory.
-            if (self.get_paginate_by(self.object_list) is not None
-                and hasattr(self.object_list, 'exists')):
-                is_empty = not self.object_list.exists()
-            else:
-                is_empty = len(self.object_list) == 0
-            if is_empty:
-                raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.")
-                        % {'class_name': self.__class__.__name__})
-        context = self.get_context_data(object_list=self.object_list)
-        return self.render_to_response(context)
+    def get_queryset(self):
+        """"Return the soonest upcoming events that the user RSVP'd to."""
+        # print(User.objects.get(pk=self.request.user.id).events_attendees_set.filter(start_date__gte=timezone.now()).query)
+        return User.objects.get(pk=self.request.user.id).events_attendees_set.filter(start_date__gte=timezone.now()).order_by('start_date')[:10]
 
 
 class DetailView(generic.DetailView):
@@ -106,6 +69,26 @@ class UpcomingEventsView(generic.ListView):
             ).order_by('start_date')[:10]
 
 
+class CreateEventView(generic.edit.CreateView):
+    form_class = forms.CreateEventForm
+    template_name = 'events/event_create.html'
+    success_url = '/'
+
+    @method_decorator(login_required(redirect_field_name=''))
+    def dispatch(self, *args, **kwargs):
+        return super(CreateEventView, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.organizer_id = self.request.user.id
+        self.object.save()
+        form.save_m2m()
+
+        # organizer of event attends event by default
+        self.object.attendees.add(self.request.user.id)
+
+        return HttpResponseRedirect(self.get_success_url())
+
 
 ###### Account Stuff
 
@@ -118,7 +101,6 @@ def logout_action(request):
 class LoginView(generic.edit.CreateView):
     form_class = forms.LoginForm
     template_name = 'events/user_login.html'
-    action = '/login/'
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated():

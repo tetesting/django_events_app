@@ -1,0 +1,71 @@
+{% extends 'events/layouts/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Create Event - {{ block.super }}{% endblock %}
+
+{% block pagetitle %}<h1>Create an Event</h1>{% endblock %}
+
+{% block content %}
+<div id="content-main">
+<br/>
+  <form action="{% url 'event_create' %}" method="post">
+    {% csrf_token %}
+<div class="row">
+<div class="col-sm-offset-1 col-sm-4">
+  <div class="form-group">
+    <label for="id_event">Name of Event</label>
+    {{ form.name|add_class:"form-control" }}
+    {{ form.name.errors }}
+  </div>
+  <div class="form-group">
+    <label for="id_start_date">Start Date</label>
+    {{ form.start_date|add_class:"form-control" }}
+    {{ form.start_date.errors }}
+  </div>
+  <div class="form-group">
+    <label for="id_end_date">End Date</label>
+    {{ form.end_date|add_class:"form-control" }}
+    {{ form.end_date.errors }}
+  </div>
+  <div class="form-group">
+    <label for="id_location">Location</label>
+    {{ form.location|add_class:"form-control" }}
+  </div>
+</div>
+<div class="col-sm-offset-1 col-sm-5">
+  <!-- <div class="form-group">
+    <label for="id_tags">Tags</label>
+    {{ form.tags|add_class:"form-control" }}
+  </div> -->
+  <div class="form-group">
+    <label for="id_description">Description</label>
+    {{ form.description|add_class:"form-control" }}
+  </div>
+</div>
+</div>
+
+  <div>
+    <div class="col-sm-offset-6 col-sm-5">
+    <button type="submit" class="btn btn-default col-sm-6">Create Event</button>
+    <a href="/" class="btn btn-default col-sm-offset-1 col-sm-4">Cancel</a>
+    </div>
+  </div>
+  </form>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+{{ block.super }}
+<script type="text/javascript">
+  // document.getElementById('id_username').focus();
+  // var error = $('.errorlist').first().siblings('input');
+  // if (error.attr('id').match(/password/)) {
+  //   document.getElementById('id_password').focus();
+  // } else {
+  //   error.focus();
+  // }
+
+  
+
+</script>
+{% endblock %}
