@@ -6,7 +6,17 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
+
+{% if user == event.organizer and not event_is_past %}
+<div class="col-sm-offset-1 col-sm-8 admin-row">
+  As the creator of this event, you may:
+  <a href="/{{ event.id }}/edit" class="btn">Edit Event</a>
+  <a href="/{{ event.id }}/delete" class="btn">Delete Event</a>
+</div>
+<br/>
+{% endif %}
+  
+{% if user.is_authenticated and not event_is_past %}
 <div class="container row link-row">
   <div class="col-sm-offset-6 col-sm-4">
   <form action="/{{ event.id }}/" method="post">
@@ -25,7 +35,7 @@
 <br/>
 {% endif%}
 
-<div class="row">
+<div class="container row">
   <div class="col-sm-offset-1 col-sm-7">
     <h2>Details</h2>
     <br/>
@@ -34,7 +44,7 @@
         {% if event.end_date %}
         <tr><th>End Time:</th><td>{{ event.end_date }}</td></tr>
         {% endif %}
-        {% if event.location_date %}
+        {% if event.location %}
         <tr><th>Location:</th><td>{{ event.location }}</td></tr>
         {% endif %}
         {% if event.description %}
@@ -42,6 +52,9 @@
           <p>{{ event.description }}</p>
         </td></tr>
         {% endif %}
+        <tr><th>Organizer:</th><td>
+          <p>{{ event.organizer }}</p>
+        </td></tr>
     </table>
     {% if event.attendees %}
     <br/>

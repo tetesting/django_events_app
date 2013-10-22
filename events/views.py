@@ -12,8 +12,13 @@ from django.contrib import messages
 
 from .models import Event, User
 from events import forms
-from .view_helpers import LoginRequiredMixin, SaveViewWithMessageMixin, MyEventsMixin
+from .view_helpers import (
+    LoginRequiredMixin, SaveViewWithMessageMixin, MyEventsMixin, 
+    SingleEventMixin,
+    )
 
+
+ONE_HOUR = 3600
 
 class AboutView(generic.TemplateView):
     template_name='events/pages/about.html'
@@ -27,7 +32,7 @@ def index_action(request):
 
 class IndexAnonymousView(generic.ListView):
     template_name = 'events/anonymous_index.html'
-    limit = 10
+    limit = 50
 
     def get_queryset(self):
         """"Return the soonest upcoming events."""
@@ -65,12 +70,41 @@ class IndexAuthenticatedView(MyEventsMixin, generic.ListView):
         context.update(kwargs)
         return context
 
-class DetailView(generic.DetailView):
+
+class MyEventsView(LoginRequiredMixin, MyEventsMixin, generic.ListView):
+    template_name = 'events/my_events.html'
+    limit = 50
+
+    def get_queryset(self):
+        pass
+
+    def get_context_data(self, **kwargs):
+        context = super(MyEventsView, self).get_context_data(**kwargs)
+
+        organizing_list = self.get_events_organizing(self.limit)
+        attending_list = self.get_events_attending(self.limit)
+        kwargs.update({'organizing_list' : organizing_list})
+        kwargs.update({'attending_list' : attending_list})
+
+        context.update(kwargs)
+        return context
+
+
+class DetailView(SingleEventMixin, generic.DetailView):
     model = Event
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
+        if self.object.end_date:
+            event_is_past = self.object.end_date < timezone.now()
+        else:
+            if self.object.start_date:
+                event_is_past = (self.object.start_date + 
+                    timezone.timedelta(0,ONE_HOUR*3)) < timezone.now()
+            else:
+                event_is_past = False
+        context.update({ 'event_is_past' : event_is_past })
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
@@ -83,7 +117,8 @@ class DetailView(generic.DetailView):
         else:
             self.object.attendees.remove(request.user.id)
 
-        return HttpResponseRedirect(success_url)
+        return HttpResponseRedirect(self.get_success_url())
+
 
 class PastEventsView(generic.ListView):
     """
@@ -92,7 +127,7 @@ class PastEventsView(generic.ListView):
         as well as an indicator for their RSVP.
     """
     template_name = 'events/event_list_past.html'
-    limit = 10
+    limit = 50
 
     def get_queryset(self):
         """"Return the latest past events."""
@@ -108,18 +143,19 @@ class UpcomingEventsView(generic.ListView):
         as well as an indicator for their RSVP.
     """
     template_name = 'events/event_list_upcoming.html'
+    limit = 50
 
     def get_queryset(self):
         """"Return the soonest upcoming events."""
         return Event.objects.filter(
                 start_date__gte=timezone.now()
-            ).order_by('start_date')[:10]
+            ).order_by('start_date')[:self.limit]
 
 
 class CreateEventView(LoginRequiredMixin, generic.edit.CreateView):
     form_class = forms.CreateEventForm
     template_name = 'events/event_create.html'
-    success_url = '/'
+    success_url = '/my-events/'
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -133,23 +169,35 @@ class CreateEventView(LoginRequiredMixin, generic.edit.CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class MyEventsView(LoginRequiredMixin, MyEventsMixin, generic.ListView):
-    template_name = 'events/my_events.html'
-    limit = 10
+class EditEventView(LoginRequiredMixin, SingleEventMixin, 
+        SaveViewWithMessageMixin, generic.edit.UpdateView):
+    model = Event
+    form_class = forms.EventForm
+    
+    template_name = 'events/event_edit.html'
 
-    def get_queryset(self):
-        pass
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        message_dict = { 
+            'success' : 'The event was successfully updated!',
+            'error' : 'Event was not changed. ' +
+                        'Please fix the errors below first.' }
+        return super(EditEventView, self).post(
+                        request, message_dict, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super(MyEventsView, self).get_context_data(**kwargs)
 
-        organizing_list = self.get_events_organizing(self.limit)
-        attending_list = self.get_events_attending(self.limit)
-        kwargs.update({'organizing_list' : organizing_list})
-        kwargs.update({'attending_list' : attending_list})
+class DeleteEventView(LoginRequiredMixin, generic.edit.DeleteView):
+    model = Event
+    template_name = 'events/event_delete.html'
+    success_url = '/my-events/'
 
-        context.update(kwargs)
-        return context
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+
+
 
 ###### Account Stuff
 

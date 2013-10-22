@@ -43,3 +43,19 @@ class MyEventsMixin(object):
         """"Return the soonest upcoming events that the user is attending."""
         return User.objects.get(pk=self.request.user.id).events_attendees_set.filter(start_date__gte=timezone.now()).order_by('start_date')[:limit]
 
+
+class SingleEventMixin(object):
+
+    def get_success_url(self):
+        try:
+            url = "/{}/".format(self.object.id)
+        except AttributeError:
+            raise ImproperlyConfigured(
+                "No URL to redirect to.  Either provide a url or define"
+                " a get_absolute_url method on the Model.")
+        return url
+
+
+
+
+

@@ -112,3 +112,12 @@ class CreateEventForm(forms.ModelForm):
         return super(CreateEventForm, self).__init__(*args, **kwargs)
 
 
+class EventForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Event
+        fields = ['name', 'start_date', 'end_date', 'location', 'description']
+
+
+
+

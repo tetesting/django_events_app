@@ -92,3 +92,6 @@ h4 small,
 @media screen and (max-width: 767px) {
   .link-row {
     float: right; } }
+@media screen and (min-width: 768px) {
+  .admin-row {
+    margin-bottom: 20px; } }

@@ -20,7 +20,8 @@ urlpatterns = patterns('',
     url(r'^create-event/$', events.views.CreateEventView.as_view(), name='event_create'),
     url(r'^my-events/$', events.views.MyEventsView.as_view(), name='my_events'),
 
-    url(r'^(?P<pk>\d+)/delete$', events.views.DetailView.as_view(), name='delete'),
+    url(r'^(?P<pk>\d+)/edit/$', events.views.EditEventView.as_view(), name='event_edit'),
+    url(r'^(?P<pk>\d+)/delete/$', events.views.DeleteEventView.as_view(), name='event_delete'),
 
 
     url(r"^robots\.txt$", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),

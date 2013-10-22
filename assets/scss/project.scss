@@ -112,6 +112,7 @@ h4 small,
   font-size: 14px;
 }
 
+
 @media screen and (max-width: 767px){
 
   .main {
@@ -122,6 +123,14 @@ h4 small,
     float: right;
     // margin-top: 10px;
     // margin-bottom: 15px;
+  }
+
+}
+
+@media screen and (min-width: 768px){
+
+  .admin-row {
+    margin-bottom: 20px;
   }
 
 

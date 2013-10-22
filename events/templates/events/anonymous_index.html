@@ -7,23 +7,20 @@
 {% block content %}
 
 <div class="row">
-  <div class="col-sm-offset-1">
-    <div class="col-sm-7">
-      <h2>What events are out there?</h2>
-    </div>
-    <div class="clearfix"></div>
+  <div class="col-sm-offset-1 col-sm-7">
+    <h2>What Events Are Out There?</h2>
     {% if event_list %}
-      <div class="col-sm-6">
-        <table class="table">
-        {% for event in event_list %}
-            <tr><td><a href="{% url 'detail' event.id %}">{{ event.name }}</a></td>
-                <td>{{ event.start_date }}
-                {% if event.end_date %}- {{ event.end_date}}{% endif %}</td>
-                <td>{% if event.location %} | {{ event.location }}{% endif %}</td>
-            </tr>
-        {% endfor %}
-        </table>
-      </div>
+      <table class="table">
+        <tr><th>Event Name</th><th>Date</th><th>Location</th>
+      {% for event in event_list %}
+        <tr>
+          <td><a href="{% url 'detail' event.id %}">{{ event.name }}</a></td>
+          <td>{{ event.start_date }}
+            {% if event.end_date %} -  {{ event.end_date}}{% endif %}</td>
+          <td>{% if event.location %}{{ event.location }}{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </table>
     {% else %}
         <p>No events are available.</p>
     {% endif %}
